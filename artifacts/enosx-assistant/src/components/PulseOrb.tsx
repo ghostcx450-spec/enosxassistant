@@ -92,7 +92,7 @@ function generateParticles(count: number): Particle[] {
 }
 
 /* ─────────────────────────── audio analyser ─────────────────────────── */
-function useAudioLevel(active: boolean) {
+function useAudioLevel(active: boolean): number {
   const [level, setLevel] = useState(0);
   const rafRef = useRef<number>(0);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -134,12 +134,14 @@ function useAudioLevel(active: boolean) {
         tick();
       } catch {
         // Mic unavailable — animate synthetically
-        const tick = () => {
-          if (!mounted) return;
-          setLevel(0.2 + 0.5 * Math.abs(Math.sin(Date.now() / 300)));
-          rafRef.current = requestAnimationFrame(tick);
-        };
-        tick();
+        if (mounted) {
+          const tick = () => {
+            if (!mounted) return;
+            setLevel(0.2 + 0.5 * Math.abs(Math.sin(Date.now() / 300)));
+            rafRef.current = requestAnimationFrame(tick);
+          };
+          tick();
+        }
       }
     })();
 
@@ -175,6 +177,7 @@ export default function PulseOrb({
       return () => clearTimeout(t);
     }
     prevStateRef.current = voiceState;
+    return undefined;
   }, [voiceState]);
 
   const effectiveState: keyof typeof STATE_COLORS = showCompleted

@@ -134,15 +134,15 @@ export default function Sidebar({
               style={{
                 background: item.accent
                   ? `linear-gradient(135deg, rgba(${config.accentRgb}, 0.18), rgba(${config.accentRgb}, 0.07))`
-                  : item.danger
+                  : (item as any).danger
                   ? "linear-gradient(135deg, rgba(220,20,60,0.13), rgba(220,20,60,0.04))"
                   : "rgba(255,255,255,0.035)",
                 border: item.accent
                   ? `1px solid rgba(${config.accentRgb}, 0.26)`
-                  : item.danger
+                  : (item as any).danger
                   ? "1px solid rgba(220,20,60,0.22)"
                   : "1px solid rgba(255,255,255,0.06)",
-                color: item.accent ? config.accent : item.danger ? "#ff6b8a" : config.text,
+                color: item.accent ? config.accent : (item as any).danger ? "#ff6b8a" : config.text,
               }}
               title={collapsed ? item.label : undefined}
             >
