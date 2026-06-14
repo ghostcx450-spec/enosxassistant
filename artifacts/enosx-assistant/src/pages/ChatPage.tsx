@@ -86,7 +86,7 @@ export default function ChatPage() {
   useEffect(() => { activeIdRef.current = activeId; }, [activeId]);
   useEffect(() => { conversationsRef.current = conversations; }, [conversations]);
 
-  const { sendMessage, isLoading, error, currentProvider, currentModel } = useAI();
+  const { sendMessage, isLoading, error } = useAI();
 
   const {
     voiceState,
@@ -100,7 +100,7 @@ export default function ChatPage() {
 
   const { play: playSound, setEnabled: setSoundFn } = useSoundEffects();
   const { executeAction } = useSystemActions();
-  const { enrichMessageWithContext, getContextInfo } = useContextAwareMessages();
+  const { enrichMessageWithContext, getAppSpecificSuggestions } = useContextAwareMessages();
   const { activeWindow } = useActiveWindow();
   const { fileContext, loadFile, clearFile, getFileContextMessage } = useFileContext();
   const {
@@ -174,11 +174,10 @@ export default function ChatPage() {
       }
 
       const memoryContext = getMemoryContext();
-      const contextInfo = getContextInfo(activeWindow);
       
       const enrichedUserMessage = {
         ...userMessage,
-        content: userMessage.content + memoryContext + contextInfo
+        content: userMessage.content + memoryContext
       };
 
       const contextEnrichedMessages = enrichMessageWithContext([...currentMessages, enrichedUserMessage], activeWindow);
@@ -238,7 +237,7 @@ export default function ChatPage() {
         );
       }
     },
-    [sendMessage, speak, autoSpeak, playSound, fileContext, getFileContextMessage, clearFile, getMemoryContext, enrichMessageWithContext, getContextInfo, activeWindow, executeAction]
+    [sendMessage, speak, autoSpeak, playSound, fileContext, getFileContextMessage, clearFile, getMemoryContext, enrichMessageWithContext, activeWindow, executeAction]
   );
 
   const triggerGodMode = useCallback(() => {
@@ -551,7 +550,6 @@ export default function ChatPage() {
               onStartVoice={handleStartVoice}
               onStopVoice={stopListening}
               onStopSpeaking={handleStopSpeak}
-              onScreenshot={handleScreenshot}
               voiceState={voiceState}
               transcript={transcript}
             />
@@ -576,15 +574,6 @@ export default function ChatPage() {
                 setIsGodModeActive(false);
               }}
               onExecute={executeGodCommand}
-              memories={memories}
-              onAddMemory={addMemory}
-              onRemoveMemory={removeMemory}
-              voiceState={voiceState}
-              transcript={transcript}
-              onStartVoice={handleStartVoice}
-              onStopVoice={stopListening}
-              onStopSpeaking={handleStopSpeak}
-              isLoading={isLoading}
             />
           )}
         </AnimatePresence>

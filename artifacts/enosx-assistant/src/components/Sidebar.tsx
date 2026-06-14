@@ -35,6 +35,15 @@ interface SidebarProps {
   onMobileClose?: () => void;
 }
 
+interface NavItem {
+  label: string;
+  description: string;
+  icon: React.ComponentType<any>;
+  onClick: () => void;
+  accent?: boolean;
+  danger?: boolean;
+}
+
 export default function Sidebar({
   conversations,
   activeId,
@@ -51,7 +60,7 @@ export default function Sidebar({
   const { config } = useTheme();
   const { settings } = useWallpaper();
 
-  const navItems = [
+  const navItems: NavItem[] = [
     {
       label: "New Chat",
       description: "Start a fresh workspace",

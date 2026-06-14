@@ -59,14 +59,14 @@ export default function AIFace({
   };
 
   // Mouth animation based on state
-  const getMouthAnimation = () => {
+  const getMouthAnimation = (): { d?: string | string[]; transition?: any } => {
     if (isSpeaking) {
       return {
         d: [
           "M 80 120 Q 100 130 120 120",
           "M 80 120 Q 100 140 120 120",
           "M 80 120 Q 100 130 120 120",
-        ],
+        ] as unknown as string,
         transition: { duration: 0.3, repeat: Infinity },
       };
     }
@@ -156,7 +156,7 @@ export default function AIFace({
 
         {/* Mouth */}
         <motion.path
-          {...getMouthAnimation()}
+          {...(getMouthAnimation() as any)}
           stroke={accentColor}
           strokeWidth="2.5"
           fill="none"
