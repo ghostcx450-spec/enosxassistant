@@ -16,6 +16,7 @@ import PulseOrb from "@/components/PulseOrb";
 import FileDropZone from "@/components/FileDropZone";
 import GodModeTerminal from "@/components/GodModeTerminal";
 import CircuitDoor from "@/components/CircuitDoor";
+import PowerConfirmation from "@/components/PowerConfirmation";
 import { GlobalLayout } from "@/components/GlobalLayout";
 import { useGroq as useAI } from "@/hooks/useGroq";
 import { useVoice } from "@/hooks/useVoice";
@@ -99,7 +100,7 @@ export default function ChatPage() {
   } = useVoice();
 
   const { play: playSound, setEnabled: setSoundFn } = useSoundEffects();
-  const { executeAction } = useSystemActions();
+  const { executeAction, pendingPowerAction, showPowerConfirmation, confirmPowerAction, cancelPowerAction } = useSystemActions();
   const { enrichMessageWithContext, getAppSpecificSuggestions } = useContextAwareMessages();
   const { activeWindow } = useActiveWindow();
   const { fileContext, loadFile, clearFile, getFileContextMessage } = useFileContext();
@@ -577,6 +578,13 @@ export default function ChatPage() {
             />
           )}
         </AnimatePresence>
+
+        <PowerConfirmation
+          isOpen={showPowerConfirmation}
+          action={pendingPowerAction}
+          onConfirm={confirmPowerAction}
+          onCancel={cancelPowerAction}
+        />
       </main>
     </div>
     </GlobalLayout>

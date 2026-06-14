@@ -2,11 +2,12 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 export interface SystemAction {
-  type: "open_url" | "launch_app" | "chain" | "delay";
+  type: "open_url" | "launch_app" | "chain" | "delay" | "shutdown" | "restart" | "sleep" | "wake";
   url?: string;
   app?: string;
   delay?: number;
   sequence?: SystemAction[];
+  reason?: string;
 }
 
 export interface ChainProgress {
@@ -28,29 +29,86 @@ export function useCommandChain() {
     failedActions: [],
   });
 
-  const executeAction = useCallback(async (action: SystemAction): Promise<boolean> => {
-    try {
-      if (action.type === "open_url") {
-        if (!action.url) throw new Error("Missing URL");
-        window.open(action.url, "_blank");
-        toast.success(`Opening: ${action.url}`);
+  const [pendingPowerAction, setPendingPowerAction] = useState<SystemAction | null>(null);
+  const [showPowerConfirmation, setShowPowerConfirmation] = useState(false);
+
+  const executePowerAction = useCallback(
+    async (action: SystemAction, confirmed: boolean = false): Promise<boolean> => {
+      try {
+        if (!["shutdown", "restart", "sleep", "wake"].includes(action.type)) {
+          return false;
+        }
+
+        // Check if confirmation is required and not provided
+        if (!confirmed && ["shutdown", "restart"].includes(action.type)) {
+          setPendingPowerAction(action);
+          setShowPowerConfirmation(true);
+          return true; // Return true to mark as processed, actual execution pending confirmation
+        }
+
+        // Call backend power endpoint
+        const response = await fetch("/api/system/power", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: action.type,
+            confirm: confirmed || action.type === "sleep",
+            reason: action.reason,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || data.error || "Power command failed");
+        }
+
+        if (data.status === "confirmation_required") {
+          setPendingPowerAction(action);
+          setShowPowerConfirmation(true);
+          return true;
+        }
+
+        toast.success(`${action.type.charAt(0).toUpperCase() + action.type.slice(1)} initiated`);
         return true;
-      } else if (action.type === "launch_app") {
-        if (!action.app) throw new Error("Missing app name");
-        console.log(`LAUNCH_APP_INTENT: ${action.app}`);
-        toast.info(`Launching: ${action.app}`);
-        return true;
-      } else if (action.type === "delay") {
-        const delayMs = action.delay || 1000;
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
-        return true;
+      } catch (error) {
+        toast.error(`Power command failed: ${error instanceof Error ? error.message : String(error)}`);
+        return false;
       }
-      return false;
-    } catch (error) {
-      toast.error(`Action failed: ${error instanceof Error ? error.message : String(error)}`);
-      return false;
-    }
-  }, []);
+    },
+    []
+  );
+
+  const executeAction = useCallback(
+    async (action: SystemAction): Promise<boolean> => {
+      try {
+        if (action.type === "open_url") {
+          if (!action.url) throw new Error("Missing URL");
+          window.open(action.url, "_blank");
+          toast.success(`Opening: ${action.url}`);
+          return true;
+        } else if (action.type === "launch_app") {
+          if (!action.app) throw new Error("Missing app name");
+          console.log(`LAUNCH_APP_INTENT: ${action.app}`);
+          toast.info(`Launching: ${action.app}`);
+          return true;
+        } else if (action.type === "delay") {
+          const delayMs = action.delay || 1000;
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+          return true;
+        } else if (["shutdown", "restart", "sleep", "wake"].includes(action.type)) {
+          return await executePowerAction(action);
+        }
+        return false;
+      } catch (error) {
+        toast.error(`Action failed: ${error instanceof Error ? error.message : String(error)}`);
+        return false;
+      }
+    },
+    [executePowerAction]
+  );
 
   const executeChain = useCallback(
     async (actions: SystemAction[]) => {
@@ -127,9 +185,28 @@ export function useCommandChain() {
     [executeAction]
   );
 
+  const confirmPowerAction = useCallback(async () => {
+    if (pendingPowerAction) {
+      setShowPowerConfirmation(false);
+      const success = await executePowerAction(pendingPowerAction, true);
+      if (success) {
+        setPendingPowerAction(null);
+      }
+    }
+  }, [pendingPowerAction, executePowerAction]);
+
+  const cancelPowerAction = useCallback(() => {
+    setShowPowerConfirmation(false);
+    setPendingPowerAction(null);
+  }, []);
+
   return {
     progress,
     executeAction,
     executeChain,
+    pendingPowerAction,
+    showPowerConfirmation,
+    confirmPowerAction,
+    cancelPowerAction,
   };
 }

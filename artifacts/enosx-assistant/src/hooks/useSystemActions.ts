@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useCommandChain, type SystemAction } from "./useCommandChain";
 
 export function useSystemActions() {
-  const { executeChain } = useCommandChain();
+  const { executeChain, pendingPowerAction, showPowerConfirmation, confirmPowerAction, cancelPowerAction } = useCommandChain();
 
   const parseActions = useCallback((text: string): SystemAction[] => {
     const actions: SystemAction[] = [];
@@ -55,5 +55,11 @@ export function useSystemActions() {
     [parseActions, executeChain]
   );
 
-  return { executeAction };
+  return { 
+    executeAction,
+    pendingPowerAction,
+    showPowerConfirmation,
+    confirmPowerAction,
+    cancelPowerAction,
+  };
 }
