@@ -7,7 +7,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { FounderModeProvider } from "./contexts/FounderModeContext";
 import { WindowContextProvider } from "./contexts/WindowContext";
 import { WallpaperProvider } from "./contexts/WallpaperContext";
-import ProductionBadge from "./components/ProductionBadge";
 import { Suspense, lazy, useState } from "react";
 
 // Lazy load route components to enable code-splitting
@@ -68,7 +67,6 @@ function App() {
                       },
                     }}
                   />
-                  <ProductionBadge />
                   <Router />
                 </WouterRouter>
               </TooltipProvider>
