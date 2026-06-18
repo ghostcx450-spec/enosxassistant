@@ -60,23 +60,21 @@ export default function AIFace({
 
   // Mouth animation based on state
   const getMouthAnimation = () => {
-    if (isSpeaking) {
-      return {
-        d: [
-          "M 80 120 Q 100 130 120 120",
-          "M 80 120 Q 100 140 120 120",
-          "M 80 120 Q 100 130 120 120",
-        ],
-        transition: { duration: 0.3, repeat: Infinity },
-      };
-    }
-    if (emotion === "happy") {
-      return { d: "M 80 120 Q 100 135 120 120" };
-    }
-    if (emotion === "confused") {
-      return { d: "M 80 125 Q 100 115 120 125" };
-    }
-    return { d: "M 80 120 Q 100 125 120 120" };
+    const states = isSpeaking
+      ? {
+          d: [
+            "M 80 120 Q 100 130 120 120",
+            "M 80 120 Q 100 140 120 120",
+            "M 80 120 Q 100 130 120 120",
+          ] as const,
+          transition: { duration: 0.3, repeat: Infinity },
+        }
+      : emotion === "happy"
+        ? { d: "M 80 120 Q 100 135 120 120" }
+        : emotion === "confused"
+          ? { d: "M 80 125 Q 100 115 120 125" }
+          : { d: "M 80 120 Q 100 125 120 120" };
+    return states as any;
   };
 
   return (
