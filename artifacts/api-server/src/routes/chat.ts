@@ -2,8 +2,9 @@ import { Router } from "express";
 
 const chatRouter = Router();
 
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = "llama-3.3-70b-versatile";
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const MODEL = "grok-2";
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 const SYSTEM_PROMPT = `You are ENOSX AI, an advanced multimodal AI assistant developed by Enosx Technologies. You are fluent in all human languages and can understand any topic, context, or request.
 
@@ -35,10 +36,8 @@ GOD MODE:
 When a user message begins with [GOD MODE COMMAND], switch to advanced operator mode. Give concise, direct, implementation-first answers.`;
 
 chatRouter.post("/chat", async (req, res) => {
-  const GROQ_API_KEY = process.env.GROQ_API_KEY?.trim();
-
-  if (!GROQ_API_KEY) {
-    res.status(500).json({ error: "GROQ_API_KEY environment variable is not set. Please add it in the Replit Secrets tab." });
+  if (!OPENROUTER_API_KEY) {
+    res.status(500).json({ error: "OPENROUTER_API_KEY environment variable is not set." });
     return;
   }
 
@@ -61,11 +60,11 @@ chatRouter.post("/chat", async (req, res) => {
   ];
 
   try {
-    const response = await fetch(GROQ_API_URL, {
+    const response = await fetch(OPENROUTER_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${GROQ_API_KEY}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
         model: MODEL,
@@ -85,6 +84,7 @@ chatRouter.post("/chat", async (req, res) => {
       } catch {
         errorMessage = errText || errorMessage;
       }
+      console.error("[v0] OpenRouter error:", response.status, errorMessage);
       res.status(response.status).json({ error: errorMessage });
       return;
     }
@@ -95,7 +95,7 @@ chatRouter.post("/chat", async (req, res) => {
 
     const reader = response.body?.getReader();
     if (!reader) {
-      res.status(500).json({ error: "No response body from Groq" });
+      res.status(500).json({ error: "No response body from OpenRouter" });
       return;
     }
 
