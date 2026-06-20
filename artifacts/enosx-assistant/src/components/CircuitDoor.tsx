@@ -38,6 +38,7 @@ export default function CircuitDoor({ isActive, onAnimationComplete }: CircuitDo
         clearTimeout(displayTimer);
       };
     }
+    return undefined;
   }, [phase]);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function CircuitDoor({ isActive, onAnimationComplete }: CircuitDo
       }, 1500);
       return () => clearTimeout(openTimer);
     }
+    return undefined;
   }, [phase]);
 
   useEffect(() => {
@@ -61,6 +63,7 @@ export default function CircuitDoor({ isActive, onAnimationComplete }: CircuitDo
       }, 1000);
       return () => clearTimeout(completeTimer);
     }
+    return undefined;
   }, [phase, onAnimationComplete]);
 
   // Determine if doors should be visible
@@ -83,8 +86,7 @@ export default function CircuitDoor({ isActive, onAnimationComplete }: CircuitDo
             transition={{ 
               type: "spring", 
               stiffness: 40, 
-              damping: 15,
-              exit: { duration: 1, ease: [0.7, 0, 0.3, 1], delay: 0.5 }
+              damping: 15
             }}
             className="w-1/2 h-full relative overflow-hidden"
             style={{
@@ -119,8 +121,7 @@ export default function CircuitDoor({ isActive, onAnimationComplete }: CircuitDo
             transition={{ 
               type: "spring", 
               stiffness: 40, 
-              damping: 15,
-              exit: { duration: 1, ease: [0.7, 0, 0.3, 1], delay: 0.5 }
+              damping: 15
             }}
             className="w-1/2 h-full relative overflow-hidden"
             style={{

@@ -175,6 +175,7 @@ export default function PulseOrb({
       return () => clearTimeout(t);
     }
     prevStateRef.current = voiceState;
+    return undefined;
   }, [voiceState]);
 
   const effectiveState: keyof typeof STATE_COLORS = showCompleted
