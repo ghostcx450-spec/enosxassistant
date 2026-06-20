@@ -2,9 +2,9 @@ import { Router } from "express";
 
 const chatRouter = Router();
 
-const AI_GATEWAY_URL = "https://api.gateway.ai.cloudflare.com/v1/openai/chat/completions";
-const MODEL = "grok-3";
-const AI_GATEWAY_API_KEY = process.env.AI_GATEWAY_API_KEY;
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const MODEL = "grok-2";
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 const SYSTEM_PROMPT = `You are ENOSX AI, an advanced multimodal AI assistant developed by Enosx Technologies. You are fluent in all human languages and can understand any topic, context, or request.
 
@@ -36,8 +36,8 @@ GOD MODE:
 When a user message begins with [GOD MODE COMMAND], switch to advanced operator mode. Give concise, direct, implementation-first answers.`;
 
 chatRouter.post("/chat", async (req, res) => {
-  if (!AI_GATEWAY_API_KEY) {
-    res.status(500).json({ error: "AI_GATEWAY_API_KEY environment variable is not set." });
+  if (!OPENROUTER_API_KEY) {
+    res.status(500).json({ error: "OPENROUTER_API_KEY environment variable is not set." });
     return;
   }
 
@@ -60,11 +60,11 @@ chatRouter.post("/chat", async (req, res) => {
   ];
 
   try {
-    const response = await fetch(AI_GATEWAY_URL, {
+    const response = await fetch(OPENROUTER_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${AI_GATEWAY_API_KEY}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
         model: MODEL,
@@ -84,7 +84,7 @@ chatRouter.post("/chat", async (req, res) => {
       } catch {
         errorMessage = errText || errorMessage;
       }
-      console.error("[v0] AI Gateway error:", response.status, errorMessage);
+      console.error("[v0] OpenRouter error:", response.status, errorMessage);
       res.status(response.status).json({ error: errorMessage });
       return;
     }
@@ -95,7 +95,7 @@ chatRouter.post("/chat", async (req, res) => {
 
     const reader = response.body?.getReader();
     if (!reader) {
-      res.status(500).json({ error: "No response body from Groq" });
+      res.status(500).json({ error: "No response body from OpenRouter" });
       return;
     }
 
