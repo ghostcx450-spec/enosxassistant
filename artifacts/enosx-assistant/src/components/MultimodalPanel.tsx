@@ -66,9 +66,9 @@ export default function MultimodalPanel({
   const handleAISpeak = useCallback(() => {
     if (aiResponse) {
       detectEmotion(aiResponse);
-      speak(aiResponse, selectedLanguage);
+      speak(aiResponse);
     }
-  }, [aiResponse, selectedLanguage, speak, detectEmotion]);
+  }, [aiResponse, speak, detectEmotion]);
 
   // Language options
   const languages = [
